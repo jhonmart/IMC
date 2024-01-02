@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neural networks</title>
+    <script src="./brain.js"></script>
+    <script src="./training.js"></script>
+    <style>
+      body {
+        background-color: rgb(36, 36, 36);
+        display: flex;
+        flex-wrap: wrap;
+        flex-direction: column;
+        align-content: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+      }
+      #people {
+        background-image: url(https://www.fetalmed.net/wp-content/uploads/2022/10/Indice-de-Massa-Corporal-IMC-Segundo-OMS.png);
+        width: 120px;
+        height: 200px;
+        background-size: 990px;
+        background-position-y: -90px;
+        align-self: center;
+        /* background-position-x: -875px; */
+      }
+      #formIMC {
+        align-items: center;
+        display: grid;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="people"></div>
+    <form id="formIMC">
+      <br>
+      <textarea disabled placeholder="Resultado" id="result"></textarea>
+      <br>
+      <input type="number" placeholder="Altura" step="0.01" max="3" min="0.3" id="people_length">
+      <input type="number" placeholder="Peso" max="300" min="3" id="people_weight">
+      <input type="submit" value="Calcular">
+    </form>
+    <script>
+      const imgPosition = "5px, -105px, -215px, -325px, -430px, -545px, -655px, -760px, -875px".split(", ");
+      const imgIdx = [
+        "Baixo peso (grau 1)",
+        "Baixo peso (grau 2)",
+        "Baixo peso (grau 3)",
+        "Peso saudável",
+        "Sobrepeso",
+        "Obesidade (grau 1)",
+        "Obesidade (grau 2)",
+        "Obesidade (grau 3)"
+      ];
+      const padronizeInput = (inputs) => {
+        const sizes = [9, 18];
+        const binaries = inputs.map((value, index) => parseInt(value * 100).toString(2).padStart(sizes[index], '0'));
+        return binaries.join('').split('').map(digite => Number(digite));
+      };
+
+      const net = new brain.NeuralNetwork();
+      net.fromJSON(weightsNN);
+
+      formIMC.onsubmit = event => {
+        event.preventDefault();
+        result.value = brain.likely(
+          padronizeInput([
+            Number(people_length.value),
+            Number(people_weight.value)
+          ]),
+          net
+        );
+        people.style['background-position-x'] = imgPosition[imgIdx.indexOf(result.value)];
+      }
+    </script>
+  </body>
+</html>
